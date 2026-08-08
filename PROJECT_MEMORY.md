@@ -13,7 +13,9 @@ This file stores stable project facts future agents should reuse. Do not paste r
 
 - 首枚主角选择 Intel 4004，采用 18 步完整旅程和 9 步速览。
 - 所有教学内容标记为 4004 直接史料、同期工艺还原或教学简化，不补造未公开的量产参数。
-- 3D 场景为程序化原创示意，不直接再发布受版权约束的历史图片、掩膜扫描或商标素材。
+- 步骤 3、6、14 使用 4004.com 分析器中的五张 1968 × 2706 校正版图；五层保持共同 X/Y 坐标，只做 50% 等比例重采样、透明化和着色。
+- 公开校正版图包不含钝化层；钝化开窗按金属层实际焊盘位置教学重建，图层垂直间距和厚度均不代表实物比例。
+- 历史版图衍生资产集中在 `public/historical/4004`，按 Intel IPNC 与 4004.com CC BY-NC-SA 3.0 的非商业边界单独发布，不纳入根目录 MIT License；其余程序化场景与代码仍按 MIT 发布。
 
 ## Architecture Boundaries
 

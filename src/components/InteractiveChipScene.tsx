@@ -2,23 +2,30 @@ import { Canvas, useThree } from "@react-three/fiber";
 import { Float, OrbitControls } from "@react-three/drei";
 import { Suspense } from "react";
 import type { SceneKind } from "../data/steps";
+import type { MaskLayerId, MaskViewMode } from "../data/maskLayers";
 import { CalculatorScene, DicingScene, PackageScene, ProbeScene } from "./scenes/BackendScenes";
 import {
   CrystalPullingScene,
   LogicScene,
-  MaskScene,
   PurificationScene,
   RequirementsScene,
   WaferScene,
 } from "./scenes/FrontScenes";
-import { PassivationDieScene, ProcessScene } from "./scenes/ProcessScenes";
+import { ProcessScene } from "./scenes/ProcessScenes";
 import { palette, type Vec3 } from "./scenes/primitives";
+import { ArchiveMaskScene } from "./scenes/ArchiveMaskScene";
 
-function ObjectForScene({ kind }: { kind: SceneKind }) {
+interface SceneProps {
+  kind: SceneKind;
+  maskMode: MaskViewMode;
+  visibleMaskLayers: MaskLayerId[];
+}
+
+function ObjectForScene({ kind, maskMode, visibleMaskLayers }: SceneProps) {
   switch (kind) {
     case "brief": return <RequirementsScene />;
     case "logic": return <LogicScene />;
-    case "mask": return <MaskScene />;
+    case "mask": return <ArchiveMaskScene mode={maskMode} visibleLayers={visibleMaskLayers} />;
     case "quartz": return <PurificationScene />;
     case "ingot": return <CrystalPullingScene />;
     case "wafer": return <WaferScene />;
@@ -29,7 +36,7 @@ function ObjectForScene({ kind }: { kind: SceneKind }) {
     case "doping": return <ProcessScene stage="doping" />;
     case "oxide": return <ProcessScene stage="oxide" />;
     case "metal": return <ProcessScene stage="metal" />;
-    case "passivation": return <PassivationDieScene />;
+    case "passivation": return <ArchiveMaskScene mode={maskMode} visibleLayers={visibleMaskLayers} />;
     case "probe": return <ProbeScene />;
     case "dicing": return <DicingScene />;
     case "package": return <PackageScene />;
@@ -58,7 +65,7 @@ const stageConfig: Record<SceneKind, { scale: number; position: Vec3 }> = {
   calculator: { scale: 0.54, position: [-1.28, -0.05, 0] },
 };
 
-function Stage({ kind, reducedMotion }: { kind: SceneKind; reducedMotion: boolean }) {
+function Stage({ kind, reducedMotion, maskMode, visibleMaskLayers }: SceneProps & { reducedMotion: boolean }) {
   const config = stageConfig[kind];
   const { width } = useThree((state) => state.size);
   const isDesktop = width >= 900;
@@ -71,13 +78,13 @@ function Stage({ kind, reducedMotion }: { kind: SceneKind; reducedMotion: boolea
       floatIntensity={reducedMotion ? 0 : 0.045}
     >
       <group key={kind} scale={scale} position={position}>
-        <ObjectForScene kind={kind} />
+        <ObjectForScene kind={kind} maskMode={maskMode} visibleMaskLayers={visibleMaskLayers} />
       </group>
     </Float>
   );
 }
 
-export function InteractiveChipScene({ kind, reducedMotion }: { kind: SceneKind; reducedMotion: boolean }) {
+export function InteractiveChipScene({ kind, reducedMotion, maskMode, visibleMaskLayers }: SceneProps & { reducedMotion: boolean }) {
   return (
     <div className="canvas-wrap" aria-hidden="true">
       <Canvas
@@ -91,7 +98,12 @@ export function InteractiveChipScene({ kind, reducedMotion }: { kind: SceneKind;
         <directionalLight position={[-4, 2, 3]} intensity={1.2} color={palette.metal} />
         <pointLight position={[3, -1, 2]} intensity={9} distance={10} color={palette.poly} />
         <Suspense fallback={null}>
-          <Stage kind={kind} reducedMotion={reducedMotion} />
+          <Stage
+            kind={kind}
+            reducedMotion={reducedMotion}
+            maskMode={maskMode}
+            visibleMaskLayers={visibleMaskLayers}
+          />
         </Suspense>
         <OrbitControls
           enablePan={false}

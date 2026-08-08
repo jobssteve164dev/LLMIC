@@ -5,7 +5,7 @@
 ## 体验设计
 
 - 完整旅程与 2 分钟速览两种路径
-- 可旋转、缩放的原创教学 3D 模型
+- 可旋转、缩放的 3D 模型；关键裸片场景使用公开的 4004 档案校正版图
 - 每一步区分直接史料、同期工艺还原和现代工艺类比
 - 桌面、手机、键盘和减少动态效果偏好均可使用
 - 资料入口直达 Intel、Computer History Museum、原始数据手册等专业来源
@@ -45,4 +45,6 @@ npm run deploy
 
 ## 许可
 
-代码以 [MIT License](LICENSE) 开源。站内 3D 场景均为原创教学示意；Intel、4004 及相关商标属于其各自权利人。
+代码以 [MIT License](LICENSE) 开源。`public/historical/4004` 中的历史版图及其衍生图像不适用 MIT，而按 Intel IPNC 与 4004.com 的 CC BY-NC-SA 3.0 非商业边界单独发布；完整归属、处理方式和限制见[资产说明](public/historical/4004/NOTICE.md)与[许可原文](public/historical/4004/Intel-IPNC-License.txt)。
+
+工艺剖面、图层垂直间距与钝化开窗是明确标注的教学还原。Intel、4004 及相关商标属于其各自权利人，本项目与 Intel 无隶属或背书关系。

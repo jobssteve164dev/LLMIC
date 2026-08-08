@@ -12,10 +12,70 @@ import {
   X,
 } from "lucide-react";
 import { evidenceLabels, quickStepIndexes, sources, steps } from "./data/steps";
+import {
+  allMaskLayerIds,
+  maskLayers,
+  type MaskLayerId,
+  type MaskViewMode,
+} from "./data/maskLayers";
 
 const ChipScene = lazy(() => import("./components/InteractiveChipScene").then((module) => ({ default: module.InteractiveChipScene })));
 
 type JourneyMode = "full" | "quick";
+
+function MaskLayerControls({
+  mode,
+  visibleLayers,
+  onModeChange,
+  onToggleLayer,
+}: {
+  mode: MaskViewMode;
+  visibleLayers: MaskLayerId[];
+  onModeChange: (mode: MaskViewMode) => void;
+  onToggleLayer: (layer: MaskLayerId) => void;
+}) {
+  return (
+    <section className="mask-controls" aria-label="4004 版图图层控制">
+      <div className="mask-controls-head">
+        <div>
+          <strong>公开档案版图</strong>
+          <span>前五层为校正稿 · 钝化开窗为重建</span>
+        </div>
+        <div className="mask-view-switch" aria-label="版图显示方式">
+          {(["stacked", "exploded"] as const).map((nextMode) => (
+            <button
+              key={nextMode}
+              type="button"
+              className={mode === nextMode ? "is-active" : ""}
+              onClick={() => onModeChange(nextMode)}
+              aria-pressed={mode === nextMode}
+            >
+              {nextMode === "stacked" ? "叠合" : "分层"}
+            </button>
+          ))}
+        </div>
+      </div>
+      <div className="mask-layer-grid">
+        {maskLayers.map((layer) => {
+          const active = visibleLayers.includes(layer.id);
+          return (
+            <button
+              key={layer.id}
+              type="button"
+              className={active ? "is-active" : ""}
+              onClick={() => onToggleLayer(layer.id)}
+              aria-pressed={active}
+              aria-label={`${active ? "隐藏" : "显示"}${layer.label}图层`}
+            >
+              <i style={{ backgroundColor: layer.color }} aria-hidden="true" />
+              {layer.shortLabel}
+            </button>
+          );
+        })}
+      </div>
+    </section>
+  );
+}
 
 function initialStepIndex() {
   const slug = window.location.hash.replace(/^#\/?/, "");
@@ -29,6 +89,8 @@ function App() {
   const [mode, setMode] = useState<JourneyMode>("full");
   const [sourcesOpen, setSourcesOpen] = useState(false);
   const [aboutOpen, setAboutOpen] = useState(false);
+  const [maskViewMode, setMaskViewMode] = useState<MaskViewMode>("exploded");
+  const [visibleMaskLayers, setVisibleMaskLayers] = useState<MaskLayerId[]>(allMaskLayerIds);
   const [reducedMotion, setReducedMotion] = useState(() => window.matchMedia("(prefers-reduced-motion: reduce)").matches);
 
   const sequence = useMemo(() => mode === "quick" ? quickStepIndexes : steps.map((_, index) => index), [mode]);
@@ -113,6 +175,19 @@ function App() {
   }, []);
 
   const stepSources = sources.filter((source) => step.sourceIds.includes(source.id));
+  const showsMaskControls = step.scene === "mask" || step.scene === "passivation";
+
+  const toggleMaskLayer = (layerId: MaskLayerId) => {
+    setVisibleMaskLayers((current) => current.includes(layerId)
+      ? current.filter((id) => id !== layerId)
+      : allMaskLayerIds.filter((id) => current.includes(id) || id === layerId));
+  };
+
+  useEffect(() => {
+    if (step.scene === "mask") setMaskViewMode("exploded");
+    if (step.scene === "passivation") setMaskViewMode("stacked");
+    if (showsMaskControls) setVisibleMaskLayers(allMaskLayerIds);
+  }, [showsMaskControls, step.scene]);
 
   return (
     <div className={`app-shell ${started ? "is-started" : "is-intro"}`}>
@@ -139,7 +214,12 @@ function App() {
 
       <main id="main-content" className="experience">
         <Suspense fallback={<div className="stage-loader" aria-hidden="true"><span /></div>}>
-          <ChipScene kind={step.scene} reducedMotion={reducedMotion} />
+          <ChipScene
+            kind={step.scene}
+            reducedMotion={reducedMotion}
+            maskMode={maskViewMode}
+            visibleMaskLayers={visibleMaskLayers}
+          />
         </Suspense>
 
         {!started ? (
@@ -200,6 +280,15 @@ function App() {
                 <Rotate3D size={19} aria-hidden="true" />
                 <span>{step.action}</span>
               </div>
+
+              {showsMaskControls && (
+                <MaskLayerControls
+                  mode={maskViewMode}
+                  visibleLayers={visibleMaskLayers}
+                  onModeChange={setMaskViewMode}
+                  onToggleLayer={toggleMaskLayer}
+                />
+              )}
 
               <details className="deep-dive">
                 <summary>深入一步 <ChevronRight size={16} aria-hidden="true" /></summary>
@@ -276,7 +365,8 @@ function App() {
             <Layers3 size={28} aria-hidden="true" />
             <p className="eyebrow">LLMIC / 2026</p>
             <h2 id="about-title">把制造过程<br />变成可以触摸的空间</h2>
-            <p>本项目选择 Intel 4004，不只因为它经典，更因为约 2,300 个晶体管仍处在人可以看懂的尺度。所有 3D 模型均为原创教学示意，不复刻未获授权的历史图片或掩膜扫描。</p>
+            <p>本项目选择 Intel 4004，不只因为它经典，更因为约 2,300 个晶体管仍处在人可以看懂的尺度。工艺剖面和垂直厚度是教学示意；步骤 3、6、14 使用公开的 4004 档案校正版图。</p>
+            <p><a href="/historical/4004/NOTICE.md" target="_blank" rel="noreferrer">查看历史版图来源与非商业许可</a></p>
             <p className="about-note">“第一枚微处理器”取决于定义。本项目使用更准确的“首款商业化单芯片通用微处理器”表述。</p>
           </section>
         </div>

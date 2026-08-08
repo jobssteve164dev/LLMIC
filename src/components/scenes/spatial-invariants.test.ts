@@ -1,6 +1,5 @@
 import { describe, expect, it } from "vitest";
 import { DICING_X_LANES, DICING_Z_LANES, PACKAGE_PIN_ROWS, PROBE_POINTS } from "./BackendScenes";
-import { PASSIVATION_PAD_POSITIONS } from "./ProcessScenes";
 
 describe("3D assembly spatial invariants", () => {
   it("lands every probe tip inside the same central die", () => {
@@ -19,11 +18,7 @@ describe("3D assembly spatial invariants", () => {
     DICING_Z_LANES.forEach((lane, index) => expect(lane).toBeCloseTo(expectedZ[index], 6));
   });
 
-  it("keeps all 16 package connections and 16 exposed die pads", () => {
+  it("keeps all 16 package connections", () => {
     expect(PACKAGE_PIN_ROWS.length * 2).toBe(16);
-    expect(PASSIVATION_PAD_POSITIONS).toHaveLength(16);
-    for (const [x, z] of PASSIVATION_PAD_POSITIONS) {
-      expect(Math.abs(x) === 2.75 || Math.abs(z) === 1.55).toBe(true);
-    }
   });
 });

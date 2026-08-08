@@ -1,0 +1,30 @@
+{
+  "source": "https://www.4004.com/assets/i400x_analyzer_20210324.zip",
+  "sourceSha256": "ddd22144d497ba24732b9d316fc499e7bea0b244b77c76f5cbd97cd48cf319bf",
+  "sourceDimensions": [
+    1968,
+    2706
+  ],
+  "renderDimensions": [
+    984,
+    1353
+  ],
+  "geometryChanges": "Uniform 50% raster resampling only; no crop, rotation, or per-layer translation.",
+  "archiveCorrectedLayers": [
+    "diffusion",
+    "buried-contact",
+    "polysilicon",
+    "contact-vias",
+    "metal"
+  ],
+  "teachingReconstruction": "passivation-reconstruction.png uses openings aligned to metal-layer bond pads.",
+  "generatedSha256": {
+    "diffusion.png": "873a27f2f09588766c90d4d7aa648f62817c5f7a8b3147d6171bf7fb8717fdd4",
+    "buried-contact.png": "c8de3ef3ddc8b05918faf929527fac4c1a2877ce3fca0b536a78a5e243dedeb6",
+    "polysilicon.png": "c8321a8079976ee82e8dfe6411b458cf40defe31d6d2e5a8c4c2579fca05f497",
+    "contact-vias.png": "e9fd0e4a5edda3141b61acfb91977cb6c0f481574dfb1c285c9d399e525820e0",
+    "metal.png": "059bf6c6fe941ca551c5eece2b2a94bc71ce35322beec5b459acbb78225aa87c",
+    "passivation-reconstruction.png": "43a80d0eec52d62c41b99126031f09ad558a6e12d7af556a0329d8d191a0a58e",
+    "composite.png": "cfaf6d7f2bd7f1d890931e0d1b196d6a9ccbdb9faf08af6ee19ad274eed9e6b0"
+  }
+}

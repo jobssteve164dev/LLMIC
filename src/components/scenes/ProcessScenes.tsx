@@ -164,31 +164,3 @@ export function ProcessScene({ stage }: { stage: ProcessStage }) {
     </group>
   );
 }
-
-export const PASSIVATION_PAD_POSITIONS = [
-  [-2.25, -1.55], [-0.75, -1.55], [0.75, -1.55], [2.25, -1.55],
-  [-2.25, 1.55], [-0.75, 1.55], [0.75, 1.55], [2.25, 1.55],
-  [-2.75, -1.0], [-2.75, -0.34], [-2.75, 0.34], [-2.75, 1.0],
-  [2.75, -1.0], [2.75, -0.34], [2.75, 0.34], [2.75, 1.0],
-] as const;
-
-export function PassivationDieScene() {
-  return (
-    <group rotation={[0.66, -0.16, -0.04]} position={[0, -0.18, 0]}>
-      <Block position={[0, -0.14, 0]} size={[6.15, 0.28, 3.75]} color={palette.siliconDark} />
-      <Block position={[0, 0.055, 0]} size={[4.5, 0.11, 2.35]} color={palette.metal} metalness={0.78} />
-      {[-1.45, -0.48, 0.48, 1.45].map((x) => (
-        <Path key={x} points={[[x, 0.14, -1.12], [x, 0.14, 1.12]]} color={palette.gold} width={1.3} />
-      ))}
-      {PASSIVATION_PAD_POSITIONS.map(([x, z]) => (
-        <group key={`${x}-${z}`}>
-          <Block position={[x, 0.19, z]} size={[0.38, 0.12, 0.34]} color={palette.gold} metalness={0.9} />
-          <Path points={[[x * 0.88, 0.16, z * 0.78], [x, 0.16, z]]} color={palette.gold} width={1.1} />
-        </group>
-      ))}
-      <Block position={[0, 0.22, 0]} size={[4.85, 0.16, 2.55]} color="#b5d8c6" opacity={0.62} />
-      <Block position={[-2.75, 0.22, 0]} size={[0.28, 0.16, 2.25]} color="#b5d8c6" opacity={0.62} />
-      <Block position={[2.75, 0.22, 0]} size={[0.28, 0.16, 2.25]} color="#b5d8c6" opacity={0.62} />
-    </group>
-  );
-}
