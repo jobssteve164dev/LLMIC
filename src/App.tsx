@@ -13,7 +13,7 @@ import {
 } from "lucide-react";
 import { evidenceLabels, quickStepIndexes, sources, steps } from "./data/steps";
 
-const ChipScene = lazy(() => import("./components/ChipScene").then((module) => ({ default: module.ChipScene })));
+const ChipScene = lazy(() => import("./components/InteractiveChipScene").then((module) => ({ default: module.InteractiveChipScene })));
 
 type JourneyMode = "full" | "quick";
 
