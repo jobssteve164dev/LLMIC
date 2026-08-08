@@ -1,5 +1,10 @@
 import { describe, expect, it } from "vitest";
-import { getProcessFeatures, type ProcessStage } from "./ProcessScenes";
+import {
+  getProcessFeatures,
+  SILICON_SURFACE_Y,
+  SOURCE_DRAIN_TOP_Y,
+  type ProcessStage,
+} from "./ProcessScenes";
 
 const stages: ProcessStage[] = ["oxidation", "gate", "contact", "poly", "doping", "oxide", "metal"];
 
@@ -31,5 +36,10 @@ describe("cumulative silicon-gate process state", () => {
         if (states[index - 1][feature]) expect(states[index][feature]).toBe(true);
       }
     }
+  });
+
+  it("keeps the visible doped surface clear of the silicon depth plane", () => {
+    expect(SOURCE_DRAIN_TOP_Y).toBeGreaterThan(SILICON_SURFACE_Y);
+    expect(SOURCE_DRAIN_TOP_Y - SILICON_SURFACE_Y).toBeCloseTo(0.01, 6);
   });
 });

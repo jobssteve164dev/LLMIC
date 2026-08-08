@@ -5,7 +5,7 @@ import { Block, Marker, palette, Path, type Vec3 } from "./primitives";
 export function ProbeScene() {
   return (
     <group rotation={[0.82, 0, -0.09]} scale={0.88} position={[0, -0.35, 0]}>
-      <WaferBody tested selected />
+      <WaferBody state="tested" selected />
       <mesh position={[0, 2.1, 0]} rotation={[Math.PI / 2, 0, 0]}>
         <torusGeometry args={[1.12, 0.16, 18, 64]} />
         <meshPhysicalMaterial color={palette.siliconDark} metalness={0.52} roughness={0.24} clearcoat={0.38} />
@@ -38,11 +38,11 @@ export function DicingScene() {
       {DICING_Z_LANES.map((z) => (
         <Path key={`z-${z}`} points={[[-2.45, 0.15, z], [2.45, 0.15, z]]} color="#dbe8df" width={0.65} opacity={0.7} />
       ))}
-      <mesh position={[0.295, 0.7, 0.48]} rotation={[0, 0, Math.PI / 2]}>
+      <mesh position={[0.295, 0.7, 0.48]} rotation={DICING_BLADE_ROTATION}>
         <cylinderGeometry args={[0.58, 0.58, 0.09, 48]} />
         <meshPhysicalMaterial color={palette.metal} metalness={0.86} roughness={0.17} clearcoat={0.42} />
       </mesh>
-      <mesh position={[0.295, 0.7, 0.48]} rotation={[0, 0, Math.PI / 2]}>
+      <mesh position={[0.295, 0.7, 0.48]} rotation={DICING_BLADE_EDGE_ROTATION}>
         <torusGeometry args={[0.42, 0.035, 10, 48]} />
         <meshBasicMaterial color={palette.accent} />
       </mesh>
@@ -59,6 +59,8 @@ export const PROBE_POINTS: Vec3[] = [
 
 export const DICING_X_LANES = [-1.475, -0.885, -0.295, 0.295, 0.885, 1.475];
 export const DICING_Z_LANES = [-1.175, -0.705, -0.235, 0.235, 0.705, 1.175];
+export const DICING_BLADE_ROTATION: Vec3 = [0, 0, Math.PI / 2];
+export const DICING_BLADE_EDGE_ROTATION: Vec3 = [0, Math.PI / 2, 0];
 export const PACKAGE_PIN_ROWS = [-1.42, -1.02, -0.62, -0.22, 0.22, 0.62, 1.02, 1.42];
 
 export function PackageScene() {

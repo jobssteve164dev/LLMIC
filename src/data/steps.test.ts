@@ -22,4 +22,11 @@ describe("production journey content", () => {
     expect(quickStepIndexes.at(-1)).toBe(17);
     expect(quickStepIndexes.every((index, position) => position === 0 || index > quickStepIndexes[position - 1])).toBe(true);
   });
+
+  it("explains the scale change from local metal to whole-die passivation", () => {
+    const metal = steps.find((step) => step.id === "metal");
+    const passivation = steps.find((step) => step.id === "passivation");
+    expect(metal?.bridge?.body).toContain("镜头拉远");
+    expect(passivation?.bridge?.body).toContain("金属与钝化两层");
+  });
 });

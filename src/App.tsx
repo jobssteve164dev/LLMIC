@@ -6,11 +6,14 @@ import {
   Check,
   ChevronRight,
   CircleHelp,
+  FileText,
   Gauge,
   Layers3,
   Rotate3D,
+  Scale,
   X,
 } from "lucide-react";
+import { LegalDrawer, type LegalEntry } from "./components/LegalDrawer";
 import { evidenceLabels, quickStepIndexes, sources, steps } from "./data/steps";
 import {
   allMaskLayerIds,
@@ -77,6 +80,21 @@ function MaskLayerControls({
   );
 }
 
+function LegalLinks({ className, onOpen }: { className: string; onOpen: (entry: LegalEntry) => void }) {
+  return (
+    <nav className={className} aria-label="法律与产品说明">
+      <button type="button" onClick={() => onOpen("catalog")}>
+        <Scale size={14} aria-hidden="true" />
+        <span>法律与合规</span>
+      </button>
+      <button type="button" onClick={() => onOpen("supplement")}>
+        <FileText size={14} aria-hidden="true" />
+        <span>产品补充说明</span>
+      </button>
+    </nav>
+  );
+}
+
 function initialStepIndex() {
   const slug = window.location.hash.replace(/^#\/?/, "");
   const index = steps.findIndex((step) => step.id === slug);
@@ -89,6 +107,7 @@ function App() {
   const [mode, setMode] = useState<JourneyMode>("full");
   const [sourcesOpen, setSourcesOpen] = useState(false);
   const [aboutOpen, setAboutOpen] = useState(false);
+  const [legalEntry, setLegalEntry] = useState<LegalEntry | null>(null);
   const [maskViewMode, setMaskViewMode] = useState<MaskViewMode>("exploded");
   const [visibleMaskLayers, setVisibleMaskLayers] = useState<MaskLayerId[]>(allMaskLayerIds);
   const [reducedMotion, setReducedMotion] = useState(() => window.matchMedia("(prefers-reduced-motion: reduce)").matches);
@@ -139,21 +158,22 @@ function App() {
   }, []);
 
   useEffect(() => {
-    if (!started || sourcesOpen || aboutOpen) return;
+    if (!started || sourcesOpen || aboutOpen || legalEntry) return;
     const onKeyDown = (event: KeyboardEvent) => {
       if (event.key === "ArrowRight" || event.key === "PageDown") goNext();
       if (event.key === "ArrowLeft" || event.key === "PageUp") goPrevious();
     };
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
-  }, [aboutOpen, goNext, goPrevious, sourcesOpen, started]);
+  }, [aboutOpen, goNext, goPrevious, legalEntry, sourcesOpen, started]);
 
   useEffect(() => {
-    if (!sourcesOpen && !aboutOpen) return;
+    if (!sourcesOpen && !aboutOpen && !legalEntry) return;
     const onKeyDown = (event: KeyboardEvent) => {
       if (event.key === "Escape") {
         setSourcesOpen(false);
         setAboutOpen(false);
+        setLegalEntry(null);
       }
     };
     document.body.style.overflow = "hidden";
@@ -162,7 +182,7 @@ function App() {
       document.body.style.overflow = "";
       window.removeEventListener("keydown", onKeyDown);
     };
-  }, [aboutOpen, sourcesOpen]);
+  }, [aboutOpen, legalEntry, sourcesOpen]);
 
   useEffect(() => {
     const onHashChange = () => {
@@ -185,8 +205,12 @@ function App() {
 
   useEffect(() => {
     if (step.scene === "mask") setMaskViewMode("exploded");
-    if (step.scene === "passivation") setMaskViewMode("stacked");
-    if (showsMaskControls) setVisibleMaskLayers(allMaskLayerIds);
+    if (step.scene === "passivation") {
+      setMaskViewMode("stacked");
+      setVisibleMaskLayers(["metal", "passivation"]);
+    } else if (showsMaskControls) {
+      setVisibleMaskLayers(allMaskLayerIds);
+    }
   }, [showsMaskControls, step.scene]);
 
   return (
@@ -242,6 +266,7 @@ function App() {
               <span><strong>4 bit</strong> 数据宽度</span>
               <span><strong>750 kHz</strong> 时钟</span>
             </div>
+            <LegalLinks className="mobile-legal-links" onOpen={setLegalEntry} />
           </section>
         ) : (
           <>
@@ -281,6 +306,14 @@ function App() {
                 <span>{step.action}</span>
               </div>
 
+              {step.bridge && (
+                <aside className="process-bridge" aria-label={step.bridge.label}>
+                  <span>{step.bridge.label}</span>
+                  <strong>{step.bridge.title}</strong>
+                  <p>{step.bridge.body}</p>
+                </aside>
+              )}
+
               {showsMaskControls && (
                 <MaskLayerControls
                   mode={maskViewMode}
@@ -311,6 +344,7 @@ function App() {
                   {isLast ? <Check size={19} aria-hidden="true" /> : <ArrowRight size={19} aria-hidden="true" />}
                 </button>
               </div>
+              <LegalLinks className="mobile-legal-links" onOpen={setLegalEntry} />
             </section>
 
             <div className="scale-card" aria-label={`当前尺度：${step.scale}`}>
@@ -326,9 +360,14 @@ function App() {
       </main>
 
       <footer className="footer-note">
-        <span>独立科普项目 · 非 Intel 官方网站</span>
-        <span>拖动旋转 · 滚轮缩放 · 方向键前进</span>
+        <div className="footer-status">
+          <span>独立科普项目 · 非 Intel 官方网站</span>
+          <span>拖动旋转 · 滚轮缩放 · 方向键前进</span>
+        </div>
+        <LegalLinks className="footer-links" onOpen={setLegalEntry} />
       </footer>
+
+      {legalEntry && <LegalDrawer entry={legalEntry} onClose={() => setLegalEntry(null)} />}
 
       {sourcesOpen && (
         <div className="overlay" role="presentation" onMouseDown={(event) => event.currentTarget === event.target && setSourcesOpen(false)}>

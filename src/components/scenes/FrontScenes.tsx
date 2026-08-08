@@ -111,6 +111,15 @@ export interface DieCell {
   good: boolean;
 }
 
+export type WaferState = "blank" | "patterned" | "tested";
+
+export function getWaferFeatures(state: WaferState) {
+  return {
+    showDies: state !== "blank",
+    showTestResults: state === "tested",
+  };
+}
+
 export function buildDies(): DieCell[] {
   const dies: DieCell[] = [];
   for (let x = -3; x <= 3; x += 1) {
@@ -121,19 +130,20 @@ export function buildDies(): DieCell[] {
   return dies;
 }
 
-export function WaferBody({ tested = false, selected = false }: { tested?: boolean; selected?: boolean }) {
+export function WaferBody({ state = "patterned", selected = false }: { state?: WaferState; selected?: boolean }) {
   const dies = useMemo(buildDies, []);
+  const features = getWaferFeatures(state);
   return (
     <group>
       <Disc position={[0, 0, 0]} radius={2.65} height={0.13} color={palette.silicon} />
-      {dies.map((die) => {
+      {features.showDies && dies.map((die) => {
         const isSelected = selected && die.x === 0 && die.z === 0;
         return (
           <group key={`${die.x}-${die.z}`}>
             <Block
               position={[die.x * 0.59, 0.085, die.z * 0.47]}
               size={[0.49, 0.035, 0.37]}
-              color={tested ? (die.good ? "#294c39" : "#6d3636") : palette.siliconDark}
+              color={features.showTestResults ? (die.good ? "#294c39" : "#6d3636") : palette.siliconDark}
               emissive={isSelected ? palette.accent : undefined}
             />
             <ArchiveMaskDieTexture position={[die.x * 0.59, 0.108, die.z * 0.47]} />
@@ -148,7 +158,7 @@ export function WaferBody({ tested = false, selected = false }: { tested?: boole
 export function WaferScene() {
   return (
     <group rotation={[0.82, 0, -0.09]} scale={0.92}>
-      <WaferBody />
+      <WaferBody state="blank" />
     </group>
   );
 }

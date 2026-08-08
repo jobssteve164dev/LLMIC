@@ -32,6 +32,11 @@ export interface ProductionStep {
   evidence: EvidenceLevel;
   sourceIds: string[];
   scene: SceneKind;
+  bridge?: {
+    label: string;
+    title: string;
+    body: string;
+  };
 }
 
 export interface Source {
@@ -187,9 +192,9 @@ export const steps: ProductionStep[] = [
     number: "06",
     phase: "准备硅晶圆",
     title: "切成 2 英寸镜面晶圆",
-    takeaway: "一片晶圆会同时制造许多颗 4004，而不是只造一颗。",
-    action: "放大晶圆，查看重复排列的裸片区域。",
-    detail: "硅锭经过切片、倒角、研磨、抛光和清洗，成为平整晶圆。4004 使用直径 2 英寸，也就是约 50.8 mm 的晶圆；场景中的每颗裸片显示同一份档案版图，但排片数量与切割道仍为教学近似。",
+    takeaway: "刚抛光好的晶圆只有连续镜面，还没有任何一颗裸片的边界。",
+    action: "旋转晶圆，观察尚未经过光刻的完整硅表面。",
+    detail: "硅锭经过切片、倒角、研磨、抛光和清洗，成为平整晶圆。4004 使用直径 2 英寸，也就是约 50.8 mm 的晶圆。裸片图形要等后续掩膜在晶圆上重复曝光和加工后才会出现；此时还不存在切割道或裸片划分。",
     scale: "50.8 mm",
     evidence: "A",
     sourceIds: ["intel-data", "sumco"],
@@ -253,7 +258,7 @@ export const steps: ProductionStep[] = [
     phase: "构建晶体管",
     title: "用硼形成源极和漏极",
     takeaway: "栅极先站好位置，源漏便会自然贴着它的边界形成。",
-    action: "观察粉色掺杂区域从两侧扩展并停在栅极边缘。",
+    action: "观察浅绿色掺杂区域从两侧展开并停在栅极边缘。",
     detail: "硼进入没有被多晶硅保护的区域，形成 P 型源漏；栅极自身挡住掺杂，让源漏与栅极自动对准。",
     scale: "自对准边界",
     evidence: "B",
@@ -285,6 +290,11 @@ export const steps: ProductionStep[] = [
     evidence: "B",
     sourceIds: ["faggin"],
     scene: "metal",
+    bridge: {
+      label: "视角转换",
+      title: "把局部铝线放回整颗裸片",
+      body: "这里先用剖面看清铝如何穿过接触孔。下一步会把镜头拉远到整颗 4004：蓝色金属没有消失，而是将被最后一层保护膜覆盖。",
+    },
   },
   {
     id: "passivation",
@@ -298,6 +308,11 @@ export const steps: ProductionStep[] = [
     evidence: "B",
     sourceIds: ["4004-archive", "intel-ipnc", "faggin"],
     scene: "passivation",
+    bridge: {
+      label: "承接上一步",
+      title: "先找蓝色金属，再看保护膜留下什么",
+      body: "画面默认只保留金属与钝化两层。先关闭浅绿色钝化层确认下方铝线，再重新打开：只有边缘焊盘需要露出，供后续探针和键合线接触。",
+    },
   },
   {
     id: "probe",

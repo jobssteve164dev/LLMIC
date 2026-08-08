@@ -23,6 +23,11 @@ export interface ProcessFeatures {
   aluminum: boolean;
 }
 
+export const SILICON_SURFACE_Y = 0;
+export const SOURCE_DRAIN_HEIGHT = 0.26;
+export const SOURCE_DRAIN_CENTER_Y = -0.12;
+export const SOURCE_DRAIN_TOP_Y = SOURCE_DRAIN_CENTER_Y + SOURCE_DRAIN_HEIGHT / 2;
+
 export function getProcessFeatures(stage: ProcessStage): ProcessFeatures {
   const order = stageOrder[stage];
   return {
@@ -81,9 +86,9 @@ function FinalGateStack() {
 function SourceDrain() {
   return (
     <>
-      <Block position={[-0.84, -0.13, 0]} size={[1.32, 0.26, 2.18]} color={palette.diffusion} />
-      <Block position={[0.84, -0.13, 0]} size={[1.32, 0.26, 2.18]} color={palette.diffusion} />
-      <Block position={[-1.5, -0.13, 0.83]} size={[0.36, 0.26, 0.48]} color={palette.diffusion} />
+      <Block position={[-0.84, SOURCE_DRAIN_CENTER_Y, 0]} size={[1.32, SOURCE_DRAIN_HEIGHT, 2.18]} color={palette.diffusion} />
+      <Block position={[0.84, SOURCE_DRAIN_CENTER_Y, 0]} size={[1.32, SOURCE_DRAIN_HEIGHT, 2.18]} color={palette.diffusion} />
+      <Block position={[-1.5, SOURCE_DRAIN_CENTER_Y, 0.83]} size={[0.36, SOURCE_DRAIN_HEIGHT, 0.48]} color={palette.diffusion} />
     </>
   );
 }
