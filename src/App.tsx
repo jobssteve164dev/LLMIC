@@ -243,6 +243,7 @@ function App() {
             reducedMotion={reducedMotion}
             maskMode={maskViewMode}
             visibleMaskLayers={visibleMaskLayers}
+            layout={started ? "journey" : "intro"}
           />
         </Suspense>
 

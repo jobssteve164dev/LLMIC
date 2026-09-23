@@ -21,6 +21,8 @@ interface SceneProps {
   visibleMaskLayers: MaskLayerId[];
 }
 
+export type StageLayout = "intro" | "journey";
+
 function ObjectForScene({ kind, maskMode, visibleMaskLayers }: SceneProps) {
   switch (kind) {
     case "brief": return <RequirementsScene />;
@@ -65,12 +67,59 @@ const stageConfig: Record<SceneKind, { scale: number; position: Vec3 }> = {
   calculator: { scale: 0.54, position: [-1.28, -0.05, 0] },
 };
 
-function Stage({ kind, reducedMotion, maskMode, visibleMaskLayers }: SceneProps & { reducedMotion: boolean }) {
+const stageCamera = { position: [0, 0.55, 8.7] as Vec3, fov: 40 };
+// Covers the package pins after nested transforms, with margin above the audited 2.75 radius.
+const maximumRadiusAtBaseScale = 2.8;
+
+function clamp(value: number, minimum: number, maximum: number) {
+  return Math.min(maximum, Math.max(minimum, value));
+}
+
+function introVisualColumn(width: number) {
+  const contentLeft = clamp(width * 0.07, 32, 112);
+  const contentRight = contentLeft + Math.min(620, width * 0.46);
+  return { left: contentRight + 12, right: width - 12 };
+}
+
+function journeyVisualColumn(width: number) {
+  const panelRight = clamp(width * 0.06, 36, 104);
+  const panelWidth = width <= 1100 ? Math.min(430, width * 0.43) : Math.min(440, width * 0.35);
+  const panelLeft = width - panelRight - panelWidth;
+  return { left: width <= 1100 ? 88 : 270, right: panelLeft - 12 };
+}
+
+export function getStageTransform(kind: SceneKind, layout: StageLayout, width: number, height: number) {
   const config = stageConfig[kind];
-  const { width } = useThree((state) => state.size);
-  const isDesktop = width >= 900;
-  const position: Vec3 = isDesktop ? config.position : [0, config.position[1] + 0.45, 0];
-  const scale = isDesktop ? config.scale : config.scale * 0.8;
+  const isPhone = width <= 760;
+  const aspectRatio = width / height;
+  const viewportWidth = 2 * Math.tan((stageCamera.fov * Math.PI) / 360) * stageCamera.position[2] * aspectRatio;
+  if (isPhone) {
+    return {
+      position: [0, config.position[1] + 0.45, 0] as Vec3,
+      scale: config.scale * 0.8,
+    };
+  }
+
+  const column = layout === "intro" ? introVisualColumn(width) : journeyVisualColumn(width);
+  const center = (column.left + column.right) / 2;
+  const availableHalfWidth = (column.right - column.left) / 2 - 1;
+  const pixelsPerWorldUnit = width / viewportWidth;
+  const fitScale = availableHalfWidth / (maximumRadiusAtBaseScale * pixelsPerWorldUnit);
+  const scaleLimit = layout === "intro" ? (width >= 1100 ? 0.9 : 0.72) : 1;
+  const scaleMultiplier = Math.min(scaleLimit, fitScale);
+  const position: Vec3 = [
+    (center - width / 2) / pixelsPerWorldUnit,
+    config.position[1] + (layout === "intro" ? 0.1 : 0),
+    0,
+  ];
+  const scale = config.scale * scaleMultiplier;
+
+  return { position, scale };
+}
+
+function Stage({ kind, reducedMotion, maskMode, visibleMaskLayers, layout }: SceneProps & { reducedMotion: boolean; layout: StageLayout }) {
+  const { width, height } = useThree((state) => state.size);
+  const { position, scale } = getStageTransform(kind, layout, width, height);
   return (
     <Float
       speed={reducedMotion ? 0 : 0.55}
@@ -84,12 +133,12 @@ function Stage({ kind, reducedMotion, maskMode, visibleMaskLayers }: SceneProps 
   );
 }
 
-export function InteractiveChipScene({ kind, reducedMotion, maskMode, visibleMaskLayers }: SceneProps & { reducedMotion: boolean }) {
+export function InteractiveChipScene({ kind, reducedMotion, maskMode, visibleMaskLayers, layout }: SceneProps & { reducedMotion: boolean; layout: StageLayout }) {
   return (
     <div className="canvas-wrap" aria-hidden="true">
       <Canvas
         dpr={[1, 1.5]}
-        camera={{ position: [0, 0.55, 8.7], fov: 40 }}
+        camera={stageCamera}
         gl={{ antialias: true, alpha: true, powerPreference: "high-performance" }}
         fallback={<div className="canvas-fallback">3D 图解暂不可用，文字内容仍可继续浏览。</div>}
       >
@@ -103,6 +152,7 @@ export function InteractiveChipScene({ kind, reducedMotion, maskMode, visibleMas
             reducedMotion={reducedMotion}
             maskMode={maskMode}
             visibleMaskLayers={visibleMaskLayers}
+            layout={layout}
           />
         </Suspense>
         <OrbitControls
